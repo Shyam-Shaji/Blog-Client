@@ -59,14 +59,14 @@ export default function CommentsSection({ blogId }: CommentsSectionProps) {
         <button
           onClick={handleAddComment}
           disabled={!text.trim()}
-          className="px-4 py-2 bg-primary hover:bg-primary/90 disabled:bg-primary/50 disabled:cursor-not-allowed text-primary-foreground rounded-lg font-semibold transition-colors h-fit self-end"
+          className="px-4 py-2 bg-primary hover:bg-primary/90 disabled:bg-primary/50 disabled:cursor-not-allowed text-primary-foreground rounded-lg font-semibold transition-colors h-fit self-center"
         >
           Post
         </button>
       </div>
 
       {/* Comments List */}
-      <div className="space-y-3 max-h-96 overflow-y-auto">
+      <div className="space-y-3 max-h-96 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {comments && comments.length > 0 ? (
           comments.map((comment) => (
             <div

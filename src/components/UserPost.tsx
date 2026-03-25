@@ -1,7 +1,7 @@
-import React from "react"
+import React, { useState } from "react"
 import { Button } from "./ui/button"
 import { Card } from "./ui/card"
-import { Heart, MessageCircle, Trash2, Edit2 } from "lucide-react"
+import { Heart, MessageCircle, Trash2, Edit2, ArrowDown } from "lucide-react"
 import type { Blog } from "@/blog/blogTypes"
 import CommentsSection from "@/components/CommentsSection"
 
@@ -28,6 +28,11 @@ const UserPost: React.FC<UserPostsProps> = ({
   onToggleComments,
   openComments,
 }) => {
+  const [expandedPosts, setExpandedPosts] = useState<string[]>([]);
+  const toggleExpand = (blogId: string) => {
+    setExpandedPosts(prev => prev.includes(blogId) ? prev.filter(id => id !== blogId) : [...prev, blogId]);
+  };
+
   return (
     <div className="max-w-2xl mx-auto space-y-6 mt-10">
 
@@ -57,7 +62,16 @@ const UserPost: React.FC<UserPostsProps> = ({
           </p>
         </Card>
       ) : (
-        posts.map((post) => (
+        [...posts]
+          .sort((a, b) => {
+            const dateA = new Date(a.publishedAt).getTime();
+            const dateB = new Date(b.publishedAt).getTime();
+            if (isNaN(dateA) || isNaN(dateB)) {
+              return b._id.localeCompare(a._id);
+            }
+            return dateB - dateA;
+          })
+          .map((post) => (
           <Card
             key={post._id}
             className="bg-card border-border overflow-hidden hover:border-primary/50 transition-colors"
@@ -81,7 +95,7 @@ const UserPost: React.FC<UserPostsProps> = ({
               )}
 
               {/* Blog Content */}
-              <p className="text-foreground text-base leading-relaxed mb-4 line-clamp-4">
+              <p className={`text-foreground text-base leading-relaxed mb-4 transition-all ${expandedPosts.includes(post._id) ? '' : 'line-clamp-4'}`}>
                 {post.content}
               </p>
 
@@ -119,20 +133,20 @@ const UserPost: React.FC<UserPostsProps> = ({
               </div>
 
               {/* Actions */}
-              <div className="flex items-center gap-2 pt-3">
+              <div className="flex items-center gap-2 pt-3 flex-wrap">
 
                 {/* Like */}
                 <button
                   onClick={() => onLikePost(post._id)}
                   className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg transition-colors ${
                     likedPosts?.includes(post._id)
-                      ? "text-primary bg-primary/10 hover:bg-primary/20"
+                      ? "text-red-500 bg-red-500/10 hover:bg-red-500/20"
                       : "text-foreground/70 hover:bg-background/50"
                   }`}
                 >
                   <Heart 
                     className={`w-4 h-4 ${
-                      likedPosts?.includes(post._id) ? "fill-current" : ""
+                      likedPosts?.includes(post._id) ? "fill-current text-red-500" : ""
                     }`} 
                   />
                   <span className="text-sm font-medium">Like</span>
@@ -145,6 +159,15 @@ const UserPost: React.FC<UserPostsProps> = ({
                 >
                   <MessageCircle className="w-4 h-4" />
                   <span className="text-sm font-medium">Comment</span>
+                </button>
+
+                {/* Read */}
+                <button 
+                  onClick={() => toggleExpand(post._id)}
+                  className="flex-1 flex items-center justify-center gap-2 py-2 text-foreground/70 hover:bg-background/50 rounded-lg transition-colors group/btn"
+                >
+                  <ArrowDown className={`w-4 h-4 transition-transform ${expandedPosts.includes(post._id) ? '-rotate-90' : 'group-hover/btn:translate-y-1'}`} />
+                  <span className="text-sm font-medium">{expandedPosts.includes(post._id) ? 'Read Less' : 'Read'}</span>
                 </button>
 
                 {/* Owner Actions */}

@@ -10,6 +10,7 @@ import { useAppDispatch } from "@/app/hooks";
 import { createBlog, getUserBlogs, likeBlog, unlikeBlog, editUserBlog, deleteUserBlog } from "@/blog/blogSlice";
 import { getComments } from "@/comment/commentSlice";
 import type { CreateBlogPayload } from "@/blog/blogTypes";
+import { Footer } from "@/components/Footer";
 
 
 const ProfilePage = () => {
@@ -156,6 +157,7 @@ const ProfilePage = () => {
         onClose={() => setPostToDelete(null)}
         onConfirm={confirmDeletePost}
       />
+      <Footer />
     </>
   );
 };

@@ -3,7 +3,7 @@
 import { Footer } from '@/components/Footer'
 import Header from '@/components/Header'
 import { Card } from '@/components/ui/card'
-import { ArrowRight, Eye, Heart, MessageCircle } from 'lucide-react'
+import { ArrowDown, Eye, Heart, MessageCircle } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useAppDispatch, useAppSelector } from '@/app/hooks'
 import { getBlogs, likeBlog, unlikeBlog } from '@/blog/blogSlice'
@@ -17,6 +17,7 @@ export default function ArticlesPage() {
   const user = useAppSelector((state) => state.auth.user)
   const userId = user?.id
   const [openComments, setOpenComments] = useState<string | null>(null)
+  const [expandedPosts, setExpandedPosts] = useState<string[]>([])
 
   useEffect(() => {
     dispatch(getBlogs())
@@ -55,6 +56,14 @@ export default function ArticlesPage() {
       setOpenComments(blogId)
       dispatch(getComments(blogId))
     }
+  }
+
+  const toggleExpand = (blogId: string) => {
+    setExpandedPosts((prev) => 
+      prev.includes(blogId)
+        ? prev.filter((id) => id !== blogId)
+        : [...prev, blogId]
+    )
   }
 
   return (
@@ -117,7 +126,7 @@ export default function ArticlesPage() {
 
                 {/* Post Content */}
                 <div className="p-6">
-                  <p className="text-foreground/70 leading-relaxed line-clamp-3">
+                  <p className={`text-foreground/70 leading-relaxed ${expandedPosts.includes(post._id) ? '' : 'line-clamp-3'}`}>
                     {post.content}
                   </p>
                 </div>
@@ -132,13 +141,13 @@ export default function ArticlesPage() {
                         onClick={() => toggleLike(post._id)}
                         className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
                           likedPosts.includes(post._id)
-                            ? 'bg-primary/20 text-primary'
+                            ? 'bg-red-500/10 text-red-500'
                             : 'text-foreground/60 hover:bg-background hover:text-foreground'
                         }`}
                       >
                         <Heart
                           className={`w-4 h-4 ${
-                            likedPosts.includes(post._id) ? 'fill-current' : ''
+                            likedPosts.includes(post._id) ? 'fill-current text-red-500' : ''
                           }`}
                         />
                         <span className="text-sm font-medium">{post.likesCount}</span>
@@ -159,9 +168,12 @@ export default function ArticlesPage() {
                     {/* Actions */}
                     <div className="flex items-center gap-3">
                       
-                      <button className="flex items-center gap-2 px-4 py-2 rounded-lg text-foreground/60 hover:bg-background hover:text-foreground transition-all group/btn">
-                        <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
-                        <span className="text-sm">Read</span>
+                      <button 
+                        onClick={() => toggleExpand(post._id)}
+                        className="flex items-center gap-2 px-4 py-2 rounded-lg text-foreground/60 hover:bg-background hover:text-foreground transition-all group/btn"
+                      >
+                        <ArrowDown className={`w-4 h-4 transition-transform ${expandedPosts.includes(post._id) ? '-rotate-90' : 'group-hover/btn:translate-x-1'}`} />
+                        <span className="text-sm">{expandedPosts.includes(post._id) ? 'Read Less' : 'Read'}</span>
                       </button>
                     </div>
                   </div>
