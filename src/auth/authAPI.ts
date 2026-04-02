@@ -19,7 +19,9 @@ export const registerUser = async (data: RegisterPayload) => {
   };
 };
 
-export const getCurrentUser = async () => {
-  const res = await axiosInstance.get("/users/current");
+export const getUserByIdAPI = async (userId: string) => {
+  const res = await axiosInstance.get(`/users/${userId}`);
   return res.data;
 };
+
+

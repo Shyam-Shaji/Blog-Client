@@ -1,9 +1,10 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import type { AuthState, LoginPayload, RegisterPayload } from "./authTypes";
-import { loginUser, registerUser } from "./authAPI";
+import { loginUser, registerUser, getUserByIdAPI } from "./authAPI";
 
 const initialState: AuthState = {
   user: null,
+  selectedUser: null,
   token: localStorage.getItem("token"),
   loading: false,
   error: null,
@@ -25,6 +26,20 @@ export const register = createAsyncThunk(
   }
 );
 
+export const getUserById = createAsyncThunk(
+  "auth/getUserById",
+  async (userId: string, { rejectWithValue }) => {
+    try {
+      const res = await getUserByIdAPI(userId);
+      console.log("getUserById API Response:", res);
+      return res.user || res;
+    } catch (err: any) {
+      console.error("getUserById API Error:", err);
+      return rejectWithValue(err.response?.data?.message || "Error fetching user");
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -34,6 +49,9 @@ const authSlice = createSlice({
       state.token = null;
       localStorage.removeItem("token");
     },
+    clearSelectedUser: (state) => {
+      state.selectedUser = null;
+    }
   },
 
   extraReducers: (builder) => {
@@ -73,9 +91,26 @@ const authSlice = createSlice({
       .addCase(register.rejected, (state) => {
         state.loading = false;
         state.error = "Register failed";
+      })
+      
+      .addCase(getUserById.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(getUserById.fulfilled, (state, action) => {
+        state.loading = false;
+        state.selectedUser = action.payload;
+      })
+      .addCase(getUserById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase("user/updateUser/fulfilled" as any, (state, action: any) => {
+        // Always update the current user state when the updateUser thunk succeeds
+        state.user = action.payload;
       });
   },
 });
 
-export const { logout } = authSlice.actions;
+export const { logout, clearSelectedUser } = authSlice.actions;
+
 export default authSlice.reducer;

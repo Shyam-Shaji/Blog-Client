@@ -2,6 +2,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "@/auth/authSlice";
 import blogReducer from "@/blog/blogSlice";
 import commentReducer from "@/comment/commentSlice";
+import userReducer from "@/user/userSlice";
 
 import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
@@ -18,6 +19,7 @@ export const store = configureStore({
     auth: persistedAuthReducer,
     blog: blogReducer,
     comment: commentReducer,
+    user: userReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

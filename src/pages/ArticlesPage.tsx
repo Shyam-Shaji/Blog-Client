@@ -1,5 +1,4 @@
-'use client'
-
+import { Link } from 'react-router-dom'
 import { Footer } from '@/components/Footer'
 import Header from '@/components/Header'
 import { Card } from '@/components/ui/card'
@@ -116,9 +115,12 @@ export default function ArticlesPage() {
                   )}
 
                   <div className="flex items-center gap-3 text-sm text-foreground/60">
-                    <span className="font-medium text-foreground">
+                    <Link 
+                      to={`/profile/${post.author._id || post.author.id}`}
+                      className="font-medium text-foreground hover:text-primary transition-colors cursor-pointer"
+                    >
                       {post.author.firstName}
-                    </span>
+                    </Link>
                     <span className="text-foreground/40">•</span>
                     <span>{post.publishedAt}</span>
                   </div>

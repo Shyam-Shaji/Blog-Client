@@ -12,11 +12,7 @@ export const createBlogAPI = async(data: CreateBlogPayload) => {
     formData.append("banner_image", data.banner_image);
   }
 
-    const res = await axiosInstance.post("/blogs",formData,{
-        headers: {
-            "Content-Type": "multipart/form-data",
-        },
-    });
+    const res = await axiosInstance.post("/blogs",formData);
     
     return res.data;
 }
@@ -42,11 +38,7 @@ export const editUserBlogAPI = async(blogId: string, data: CreateBlogPayload) =>
         formData.append("banner_image", data.banner_image);
     }
 
-    const res = await axiosInstance.put(`/blogs/${blogId}`, formData, {
-        headers: {
-            "Content-Type": "multipart/form-data",
-        },
-    });
+    const res = await axiosInstance.put(`/blogs/${blogId}`, formData);
     return res.data;
 }
 
