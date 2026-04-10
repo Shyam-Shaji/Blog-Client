@@ -14,12 +14,37 @@ export function LoginPage(){
     const [email,setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isLoading,setIsLoading] = useState(false);
+    const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+
+    const validateForm = () => {
+      const newErrors: { email?: string; password?: string } = {};
+      
+      // Email validation
+      if (!email) {
+        newErrors.email = "Email is required";
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        newErrors.email = "Please enter a valid email address";
+      }
+
+      // Password validation
+      if (!password) {
+        newErrors.password = "Password is required";
+      } else if (password.length < 6) {
+        newErrors.password = "Password must be at least 6 characters";
+      }
+
+      setErrors(newErrors);
+      return Object.keys(newErrors).length === 0;
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
+      
+      if (!validateForm()) return;
+
       setIsLoading(true);
       try {
-        await dispatch(login({email,password}));
+        await dispatch(login({email,password})).unwrap();
         toast.success("Login successful");
         navigate('/home');
       } catch (error: any) {
@@ -44,7 +69,7 @@ export function LoginPage(){
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit}  className="space-y-6">
+          <form onSubmit={handleSubmit} noValidate className="space-y-6">
             {/* Email Input */}
             <div className="space-y-2">
               <Label htmlFor="email" className="text-foreground font-semibold">
@@ -55,10 +80,18 @@ export function LoginPage(){
                 type="email"
                 placeholder="you@example.com"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (errors.email) setErrors((prev) => ({ ...prev, email: undefined }));
+                }}
+                aria-invalid={!!errors.email}
                 className="h-11 bg-secondary border-border text-foreground placeholder:text-muted-foreground"
               />
+              {errors.email && (
+                <p className="text-xs text-destructive mt-1 animate-in fade-in slide-in-from-top-1 duration-200">
+                  {errors.email}
+                </p>
+              )}
             </div>
 
             {/* Password Input */}
@@ -79,10 +112,18 @@ export function LoginPage(){
                 type="password"
                 placeholder="Enter your password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (errors.password) setErrors((prev) => ({ ...prev, password: undefined }));
+                }}
+                aria-invalid={!!errors.password}
                 className="h-11 bg-secondary border-border text-foreground placeholder:text-muted-foreground"
               />
+              {errors.password && (
+                <p className="text-xs text-destructive mt-1 animate-in fade-in slide-in-from-top-1 duration-200">
+                  {errors.password}
+                </p>
+              )}
             </div>
 
             {/* Submit Button */}

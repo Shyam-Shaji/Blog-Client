@@ -18,12 +18,38 @@ export function SignupPage() {
   const [password, setPassword] = useState("");
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState<{
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    password?: string;
+    agreeToTerms?: string;
+  }>({});
+
+  const validateForm = () => {
+    const newErrors: typeof errors = {};
+    if (!firstname.trim()) newErrors.firstName = "First name is required";
+    if (!lastName.trim()) newErrors.lastName = "Last name is required";
+    if (!email) {
+      newErrors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      newErrors.email = "Please enter a valid email address";
+    }
+    if (!password) {
+      newErrors.password = "Password is required";
+    } else if (password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters";
+    }
+    if (!agreeToTerms) {
+      newErrors.agreeToTerms = "You must agree to the terms and conditions";
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if(!agreeToTerms){
-      alert('Please agree to the terms and conditions');
-    }
+    if (!validateForm()) return;
     setIsLoading(true);
     try {
       await dispatch(register({
@@ -57,7 +83,7 @@ export function SignupPage() {
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit}  className="space-y-5">
+          <form onSubmit={handleSubmit} noValidate className="space-y-5">
             {/*First Name Input */}
             <div className="space-y-2">
               <Label htmlFor="firstName" className="text-foreground font-semibold">
@@ -68,10 +94,18 @@ export function SignupPage() {
                 type="text"
                 placeholder="John Doe"
                 value={firstname}
-                onChange={(e) => setFirstName(e.target.value)}
-                required
+                onChange={(e) => {
+                  setFirstName(e.target.value);
+                  if (errors.firstName) setErrors((prev) => ({ ...prev, firstName: undefined }));
+                }}
+                aria-invalid={!!errors.firstName}
                 className="h-11 bg-secondary border-border text-foreground placeholder:text-muted-foreground"
               />
+              {errors.firstName && (
+                <p className="text-xs text-destructive mt-1 animate-in fade-in slide-in-from-top-1 duration-200">
+                  {errors.firstName}
+                </p>
+              )}
             </div>
 
             {/*Last Name Input */}
@@ -84,10 +118,18 @@ export function SignupPage() {
                 type="text"
                 placeholder="John Doe"
                 value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                required
+                onChange={(e) => {
+                  setLastName(e.target.value);
+                  if (errors.lastName) setErrors((prev) => ({ ...prev, lastName: undefined }));
+                }}
+                aria-invalid={!!errors.lastName}
                 className="h-11 bg-secondary border-border text-foreground placeholder:text-muted-foreground"
               />
+              {errors.lastName && (
+                <p className="text-xs text-destructive mt-1 animate-in fade-in slide-in-from-top-1 duration-200">
+                  {errors.lastName}
+                </p>
+              )}
             </div>
 
             {/* Email Input */}
@@ -100,10 +142,18 @@ export function SignupPage() {
                 type="email"
                 placeholder="you@example.com"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (errors.email) setErrors((prev) => ({ ...prev, email: undefined }));
+                }}
+                aria-invalid={!!errors.email}
                 className="h-11 bg-secondary border-border text-foreground placeholder:text-muted-foreground"
               />
+              {errors.email && (
+                <p className="text-xs text-destructive mt-1 animate-in fade-in slide-in-from-top-1 duration-200">
+                  {errors.email}
+                </p>
+              )}
             </div>
 
             {/* Password Input */}
@@ -119,33 +169,50 @@ export function SignupPage() {
                 type="password"
                 placeholder="Create a strong password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (errors.password) setErrors((prev) => ({ ...prev, password: undefined }));
+                }}
+                aria-invalid={!!errors.password}
                 className="h-11 bg-secondary border-border text-foreground placeholder:text-muted-foreground"
               />
+              {errors.password && (
+                <p className="text-xs text-destructive mt-1 animate-in fade-in slide-in-from-top-1 duration-200">
+                  {errors.password}
+                </p>
+              )}
             </div>
 
-            {/* Terms Checkbox */}
-            <div className="flex items-start space-x-3 pt-2">
-              <Checkbox
-                id="terms"
-                checked={agreeToTerms}
-                onCheckedChange={(checked) => setAgreeToTerms(checked === true)}
-                className="mt-1 border-border"
-              />
-              <Label
-                htmlFor="terms"
-                className="text-sm text-muted-foreground font-normal leading-relaxed cursor-pointer"
-              >
-                I agree to the{" "}
-                <Link to="#" className="text-accent hover:underline">
-                  Terms of Service
-                </Link>{" "}
-                and{" "}
-                <Link to="#" className="text-accent hover:underline">
-                  Privacy Policy
-                </Link>
-              </Label>
+            <div className="flex flex-col space-y-2 pt-2">
+              <div className="flex items-start space-x-3">
+                <Checkbox
+                  id="terms"
+                  checked={agreeToTerms}
+                  onCheckedChange={(checked) => {
+                    setAgreeToTerms(checked === true);
+                    if (errors.agreeToTerms) setErrors((prev) => ({ ...prev, agreeToTerms: undefined }));
+                  }}
+                  className={`mt-1 border-border ${errors.agreeToTerms ? "border-destructive ring-destructive/20" : ""}`}
+                />
+                <Label
+                  htmlFor="terms"
+                  className="text-sm text-muted-foreground font-normal leading-relaxed cursor-pointer"
+                >
+                  I agree to the{" "}
+                  <Link to="#" className="text-accent hover:underline">
+                    Terms of Service
+                  </Link>{" "}
+                  and{" "}
+                  <Link to="#" className="text-accent hover:underline">
+                    Privacy Policy
+                  </Link>
+                </Label>
+              </div>
+              {errors.agreeToTerms && (
+                <p className="text-xs text-destructive animate-in fade-in slide-in-from-top-1 duration-200">
+                  {errors.agreeToTerms}
+                </p>
+              )}
             </div>
 
             {/* Submit Button */}
