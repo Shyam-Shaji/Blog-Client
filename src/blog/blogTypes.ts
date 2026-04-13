@@ -13,6 +13,7 @@ export interface Blog {
   banner: Banner;
   viewsCount: number;
   likesCount: number;
+  likes: string[];
   commentsCount: number;
   status: "draft" | "published";
   publishedAt: string;

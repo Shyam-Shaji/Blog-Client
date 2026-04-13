@@ -25,6 +25,7 @@ export default function ArticlesPage() {
   useEffect(() => {
     if (!user || blogs.length === 0) return
     const liked = blogs
+  
       .filter((blog) => {
         if (!blog.likes) return false;
         // Check if likes is an array of objects (like { _id: "..." }) or an array of strings
@@ -34,6 +35,8 @@ export default function ArticlesPage() {
       })
       .map((blog) => blog._id)
     setLikedPosts(liked)
+    console.log(likedPosts,"liked posts");
+    console.log(blogs,"blogs");
   }, [blogs, user])
 
   const toggleLike = (blogId: string) => {
@@ -64,7 +67,7 @@ export default function ArticlesPage() {
         : [...prev, blogId]
     )
   }
-
+ console.log(likedPosts,"post liked");
   return (
     <main className="min-h-screen bg-background">
       <Header />
